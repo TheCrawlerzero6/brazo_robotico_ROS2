@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="bajana_description_robot">
+
+  <!-- La ruta puede sobrescribirse para validar el modelo desde el código fuente. -->
+  <xacro:arg name="controllers_file"
+             default="$(find bajana_description)/config/controllers.yaml"/>
+
+  <material name="blue">
+    <color rgba="0.0 0.0 1.0 1.0"/>
+  </material>
+
+  <material name="orange">
+    <color rgba="1.0 0.45 0.0 1.0"/>
+  </material>
+
+  <material name="brown">
+    <color rgba="0.45 0.25 0.08 1.0"/>
+  </material>
+
+  <material name="yellow">
+    <color rgba="1.0 1.0 0.0 1.0"/>
+  </material>
+
+  <!-- Inercia de una caja maciza. El origen debe coincidir con su centro. -->
+  <xacro:macro name="box_inertial" params="mass x y z ox oy oz">
+    <inertial>
+      <origin xyz="${ox} ${oy} ${oz}" rpy="0 0 0"/>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass * (y * y + z * z) / 12.0}"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="${mass * (x * x + z * z) / 12.0}"
+        iyz="0.0"
+        izz="${mass * (x * x + y * y) / 12.0}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Link auxiliar que fija la base del brazo al mundo de la simulación. -->
+  <link name="world"/>
+
+  <link name="link1">
+    <visual>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.1 1.0"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.1 1.0"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertial mass="1.0" x="0.2" y="0.1" z="1.0"
+                        ox="0.0" oy="0.0" oz="0.5"/>
+  </link>
+
+  <joint name="world_to_link1" type="fixed">
+    <parent link="world"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="joint1" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 1.0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="150.0" velocity="1.0"/>
+    <dynamics damping="0.2" friction="0.05"/>
+  </joint>
+
+  <link name="link2">
+    <visual>
+      <origin xyz="0 0 1.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.2 2.0"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 1.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.2 2.0"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertial mass="1.0" x="0.1" y="0.2" z="2.0"
+                        ox="0.0" oy="0.0" oz="1.0"/>
+  </link>
+
+  <joint name="joint2" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin xyz="0 0 2.0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="150.0" velocity="1.0"/>
+    <dynamics damping="0.2" friction="0.05"/>
+  </joint>
+
+  <link name="link3">
+    <visual>
+      <origin xyz="0 0 1.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.1 3.0"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 1.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.1 3.0"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertial mass="1.0" x="0.3" y="0.1" z="3.0"
+                        ox="0.0" oy="0.0" oz="1.5"/>
+  </link>
+
+  <joint name="joint3" type="revolute">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <origin xyz="0 0 3.0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="150.0" velocity="1.0"/>
+    <dynamics damping="0.2" friction="0.05"/>
+  </joint>
+
+  <link name="link4">
+    <visual>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.3 1.0"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.3 1.0"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertial mass="1.0" x="0.1" y="0.3" z="1.0"
+                        ox="0.0" oy="0.0" oz="0.5"/>
+  </link>
+
+  <xacro:include filename="bajana_ros2_control.xacro"/>
+  <xacro:include filename="bajana_gazebo.xacro"/>
+
+</robot>
